@@ -4,22 +4,24 @@ var NanoLeaf = new AuroraApi({
     host: '192.168.1.21',
     base: '/api/v1/',
     port: '16021',
-    accessToken: ''
+    accessToken: 'dCTYWIj8cjU2okrY0E5hSzCh6F8Hj3sM'
   });
 
 
-cycleEffects({minuteInterval: 2, rhythm: true})
+cycleEffects({minuteInterval: process.argv[2] || 20, hasRhythm: process.argv[3] || false})
 
-function cycleEffects({minuteInterval, rhythm}) {
+console.log(process.argv[2]);
+
+function cycleEffects({minuteInterval, hasRhythm}) {
   NanoLeaf.getInfo().then(info => {
     let list = JSON.parse(info).effects.effectsList
-    setNextEffect(list, rhythm)
-    setInterval(() => setNextEffect(list, rhythm), 1000*60*minutes)
+    setNextEffect(list, hasRhythm)
+    setInterval(() => setNextEffect(list, hasRhythm), 1000*60*minuteInterval)
     console.log('Device info: ' + JSON.stringify(JSON.parse(info), null,2) )
   })
 }
 
-function setNextEffect(list, rhythm) {
+function setNextEffect(list, hasRhythm) {
 
   NanoLeaf.getInfo().then(currentInfo => {
     let currentEffect = JSON.parse(currentInfo).effects.select
@@ -29,7 +31,7 @@ function setNextEffect(list, rhythm) {
       console.log({newEffect})
       NanoLeaf.getInfo().then(newInfo => {
         let rhythmIsActive = JSON.parse(newInfo).rhythm.rhythmActive
-        if (rhythmIsActive!==rhythm) setNextEffect(list, rhythm)
+        if (rhythmIsActive!==(!!hasRhythm)) setNextEffect(list, hasRhythm)
       })
     })
 
